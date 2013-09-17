@@ -1,4 +1,15 @@
 bot-template
 ============
+What does the bot do?
 
-Bot-Template
+Install
+=======
+
+Usage
+=====
+
+Data structures
+===============
+
+Design
+======
