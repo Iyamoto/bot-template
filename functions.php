@@ -1,24 +1,25 @@
 <?php
 
 /*
- * Functions for PHP-NetFlow project
+ * Functions for the project
  */
 mb_internal_encoding("UTF-8");
 
+function list2lines($list) {
+    $lines = explode("\r\n", $list);
+    if (sizeof($lines) == 1)
+        $lines = explode("\n", $list);
+    return $lines;
+}
+
 function action($emails, $src_ip, $type, $evidence) {
-    $subject = "Detected evil IP: $src_ip";
+    $subject = "subj";
     $text = implode("\n", $evidence);
     $body = $type . "\n" . $text;
     foreach ($emails as $email) {
         $results[] = mail($email, $subject, $body);
     }
     return $results;
-}
-
-function get_netflow($command) {
-    $results = shell_exec($command); //exeCute 
-    $data = str_to_array($results);
-    return $data;
 }
 
 function str_to_array($str) {
@@ -38,7 +39,6 @@ function str_to_array($str) {
 function save_json($fn, $data) {
     $json = json_encode($data);
     $gz = gzcompress($json);
-    //var_dump(strlen($json), strlen($gz));
     return file_put_contents($fn, $gz);
 }
 
@@ -67,14 +67,6 @@ function read_db_from_file($filename) {
     }
 }
 
-function check_whitelist($ip, &$whitelist) {
-    foreach ($whitelist as $white_ip) {
-        if ($ip == $white_ip)
-            return true;
-    }
-    return false;
-}
-
 function get_lastmodified_file($dir) {
     $files = array();
     if ($handle = opendir($dir)) {
@@ -90,6 +82,21 @@ function get_lastmodified_file($dir) {
     }
     else
         return false;
+}
+
+function recurse_copy($src, $dst) {
+    $dir = opendir($src);
+    @mkdir($dst);
+    while (false !== ( $file = readdir($dir))) {
+        if (( $file != '.' ) && ( $file != '..' )) {
+            if (is_dir($src . '/' . $file)) {
+                recurse_copy($src . '/' . $file, $dst . '/' . $file);
+            } else {
+                copy($src . '/' . $file, $dst . '/' . $file);
+            }
+        }
+    }
+    closedir($dir);
 }
 
 //Load from html template 
